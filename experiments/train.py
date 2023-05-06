@@ -14,8 +14,8 @@ from tensorboardX import SummaryWriter
 
 '''
 Ensure to install the multiagent particle envs first.
-Then, run  "python train.py --scenario hunt" for rover domain
-           "python train.py --scenario simple_spread" for cooperative navigation
+Then, run  "python train.py --scenario hunt" for rover exploration
+           "python train.py --scenario simple_spread" for resource collection
 '''
 def parse_args():
     parser = argparse.ArgumentParser("Reinforcement Learning experiments for multiagent environments")
@@ -33,7 +33,7 @@ def parse_args():
     parser.add_argument("--gamma", type=float, default=0.95, help="discount factor")
     parser.add_argument("--batch-size", type=int, default=1024, help="number of episodes to optimize at the same time")
     parser.add_argument("--num-units", type=int, default=128, help="number of units in the mlp")
-    # Checkpointing
+    
     parser.add_argument("--exp-name", type=str, default="MASL", help="name of the experiment")
     parser.add_argument("--save-dir", type=str, default="./policy/",
                         help="directory in which training state and model should be saved")
@@ -78,7 +78,6 @@ def parse_args():
 
 
 def act_mlp_model(input, num_outputs, scope, reuse=False):
-    # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out = input
         out = layers.fully_connected(out, num_outputs=128, activation_fn=tf.nn.relu)
@@ -88,7 +87,6 @@ def act_mlp_model(input, num_outputs, scope, reuse=False):
 
 
 def state_mlp_model(input, ob, num_outputs, scope, reuse=False):
-    # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out = input
         out = layers.fully_connected(out, num_outputs=128, activation_fn=tf.nn.relu)
@@ -98,7 +96,6 @@ def state_mlp_model(input, ob, num_outputs, scope, reuse=False):
 
 
 def actor(input, num_outputs, scope, reuse=False):
-    # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out = input
         out = layers.fully_connected(out, num_outputs=128, activation_fn=tf.nn.relu)
@@ -108,7 +105,6 @@ def actor(input, num_outputs, scope, reuse=False):
 
 
 def critic(input_self, input_other, self_sa, num_outputs, scope, reuse=False, num_units=128, rnn_cell=None):
-    # This model takes as input an observation and returns values of all actions
     with tf.variable_scope(scope, reuse=reuse):
         out1 = layers.fully_connected(input_self, num_outputs=128, activation_fn=tf.nn.relu)
         out1 = layers.fully_connected(out1, num_outputs=96, activation_fn=tf.nn.relu)
@@ -254,16 +250,16 @@ def train(arglist):
 
             obs_n = new_obs_n
 
-            episode_rewards[-1] += rew_n[0]  # 记录每一个episode的奖励
+            episode_rewards[-1] += rew_n[0]  
 
-            if done or terminal:  # 一局结束,重置环境
+            if done or terminal:  
                 occupied.append(env.hunt_occupied())
                 distance.append(env.hunt_distance())
                 collision.append(env.get_collision())
 
                 obs_n = env.reset()
                 episode_step = 0
-                episode_rewards.append(0)  # 记录着每一轮的累积奖赏
+                episode_rewards.append(0)  
                 retrogession = False
                 identified_id = -1
 
@@ -292,16 +288,16 @@ def train(arglist):
                 continue
 
             # update all trainers, if not in display or benchmark mode
-            if train_step % 50 == 0:  # only update every 100 steps
+            if train_step % 50 == 0:  # only update every 50 steps
                 for agent in trainers:
                     agent.preupdate()
                 for agent in trainers:
                     loss = agent.update(trainers, train_step, len(episode_rewards), 5, logger)
                 update += 1
 
-            if arglist.bw and train_step % 200 == 0:  # and trainers[0].len_buffer()>= arglist.batch_size:#trainers[0].max_len():
+            if arglist.bw and train_step % 200 == 0:  
                 imitation = True
-            if arglist.bw and bw_trainers.num_steps() > 100 and imitation:  # and select_agents is not None:
+            if arglist.bw and bw_trainers.num_steps() > 100 and imitation: 
                 for _ in range(arglist.n_bw):
                     bw_trainers.train_bw_model(logger)
 
