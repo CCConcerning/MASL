@@ -238,7 +238,7 @@ class MASLAgentTrainer(AgentTrainer):
         rew_n = []
         select_act = []
         index = self.replay_sample_index
-        # print('index:',index)
+       
         for i in range(self.n):
             obs, act, rew, obs_next, done = agents[i].replay_buffer.sample_index(index)
             obs_n.append(obs)
@@ -248,9 +248,9 @@ class MASLAgentTrainer(AgentTrainer):
 
         obs, act, rew, obs_next, done = self.replay_buffer.sample_index(index)
 
-        # train q network
+        # select K agents by computing relevancy
         index = compute_relevancy(self.n, self.agent_index, obs_n, obs, select_num)
-
+        # train q network
         num_sample = 1
         target_q = 0.0
         target_q_next = 0
