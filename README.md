@@ -7,9 +7,8 @@
 * [TensorFlow] version: 1.13.1
 The versions are just what I used and not necessarily strict requirements.
 
-## Installation
-- To install, `cd` into the 'experiments' directory and type `pip install -e .`
-- `cd multiagent-particle-envs-master` to install the multiagent particle envs of my repo.
+## Installation of environments
+- To install, `cd` into the 'multiagent-particle-envs-master' directory and type `pip install -e .`
 
 ## Run an experiment
 ```shell
