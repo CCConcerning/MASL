@@ -1,10 +1,10 @@
-import maddpg.common.tf_util as U
+import core.common.tf_util as U
 import numpy as np
 import tensorflow as tf
-from maddpg import AgentTrainer
-from maddpg.common.distributions import make_pdtype
-from maddpg.trainer.replay_buffer import ReplayBuffer
-from maddpg.common.misc import onehot_from_logits, categorical_sample
+from core import AgentTrainer
+from core.common.distributions import make_pdtype
+from core.trainer.replay_buffer import ReplayBuffer
+from core.common.misc import onehot_from_logits, categorical_sample
 import tensorflow.contrib.layers as layers
 
 
