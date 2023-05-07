@@ -20,7 +20,7 @@ class Scenario(BaseScenario):
             agent.collide = True
             agent.silent = True
             agent.size = 0.1
-        # add landmarks
+        # add pools
         world.landmarks = [Landmark() for i in range(num_landmarks)]
         for i, landmark in enumerate(world.landmarks):
             landmark.name = 'landmark %d' % i
@@ -80,15 +80,12 @@ class Scenario(BaseScenario):
         dist = np.sqrt(np.sum(np.square(delta_pos)))
         dist_min = agent1.size + agent2.size
         return True if dist < dist_min else False
-
-    def reward(self, agent, world):
-        # Agents are rewarded based on minimum agent distance to each landmark, penalized for collisions
-        # 代理商根据与每个地标的最小代理距离进行奖励，对冲突进行处罚
+    
+    # global reward
+    def reward(self, agent, world): 
         rew = 0
         occupied_landmarks = 0
-        # print("...one step")
         for l in world.landmarks:
-            # 算出每个agent离地标的欧式距离
             dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
             if min(dists) < 0.08:
                 occupied_landmarks += 1
@@ -111,6 +108,20 @@ class Scenario(BaseScenario):
                 occupied_landmarks += 1
         rew += occupied_landmarks * 5
 
+        if agent.collide:
+            for a in world.agents:
+                if self.is_collision(a, agent):
+                    rew -= 0.1
+        return rew
+    
+    def reward_not_fully_shared(self, agent, world):
+        rew = 0
+        occupied_landmarks = 0
+        for l in world.landmarks:
+            dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]         
+            if min(dists) < 0.08:
+                occupied_landmarks += 1        
+        rew += 1 * (occupied_landmarks ** 2)       
         if agent.collide:
             for a in world.agents:
                 if self.is_collision(a, agent):
@@ -141,7 +152,6 @@ class Scenario(BaseScenario):
     def done(self, agent, world):
         occupied_landmarks = 0
         for l in world.landmarks:
-            # 算出每个agent离地标的欧式距离
             dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
             if min(dists) < 0.1:
                 occupied_landmarks += 1
