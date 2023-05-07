@@ -9,7 +9,7 @@ class Scenario(BaseScenario):
         # set any world properties first
         world.dim_c = 2
         num_agents = 5
-        num_landmarks = 5
+        num_pools = 5
         num_obstacle = 0
         world.collaborative = False
         # add agents
@@ -21,7 +21,7 @@ class Scenario(BaseScenario):
             agent.silent = True
             agent.size = 0.1
         # add pools
-        world.landmarks = [Landmark() for i in range(num_landmarks)]
+        world.landmarks = [Landmark() for i in range(num_pools)]
         for i, landmark in enumerate(world.landmarks):
             landmark.name = 'landmark %d' % i
             landmark.collide = False
@@ -84,13 +84,13 @@ class Scenario(BaseScenario):
     # global reward
     def reward(self, agent, world): 
         rew = 0
-        occupied_landmarks = 0
+        num_mining = 0
         for l in world.landmarks:
             dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
             if min(dists) < 0.08:
-                occupied_landmarks += 1
+                num_mining += 1
 
-        rew += 1 * (occupied_landmarks ** 2)
+        rew += 1 * (num_mining ** 2)
         if agent.collide:
             for a in world.agents:
                 if self.is_collision(a, agent):
@@ -100,13 +100,13 @@ class Scenario(BaseScenario):
     # individual reward
     def reward_individual(self, agent, world):
         rew = 0
-        occupied_landmarks = 0
+        num_mining = 0
 
         for l in world.landmarks:
             dists = np.sqrt(np.sum(np.square(agent.state.p_pos - l.state.p_pos)))
             if dists < 0.08:
-                occupied_landmarks += 1
-        rew += occupied_landmarks * 5
+                num_mining += 1
+        rew += num_mining * 5
 
         if agent.collide:
             for a in world.agents:
@@ -116,12 +116,12 @@ class Scenario(BaseScenario):
     
     def reward_not_fully_shared(self, agent, world):
         rew = 0
-        occupied_landmarks = 0
+        num_mining = 0
         for l in world.landmarks:
             dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]         
             if min(dists) < 0.08:
-                occupied_landmarks += 1        
-        rew += 1 * (occupied_landmarks ** 2)       
+                num_mining += 1        
+        rew += 1 * (num_mining ** 2)       
         if agent.collide:
             for a in world.agents:
                 if self.is_collision(a, agent):
@@ -150,9 +150,9 @@ class Scenario(BaseScenario):
         # return np.concatenate([agent.state.p_vel] + [agent.state.p_pos] + other_pos + comm)
 
     def done(self, agent, world):
-        occupied_landmarks = 0
+        num_mining = 0
         for l in world.landmarks:
             dists = [np.sqrt(np.sum(np.square(a.state.p_pos - l.state.p_pos))) for a in world.agents]
             if min(dists) < 0.1:
-                occupied_landmarks += 1
-        return occupied_landmarks == len(world.landmarks)
+                num_mining += 1
+        return num_mining == len(world.landmarks)
