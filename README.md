@@ -8,7 +8,7 @@
 The versions are just what I used and not necessarily strict requirements.
 
 ## Installation of environments
-- To install, `cd` into the 'multiagent-particle-envs-master' directory and type `pip install -e .`
+- To install, `cd` into the `multiagent-particle-envs-master` directory and type `pip install -e .`
 
 ## Run an experiment
 ```shell
@@ -21,5 +21,5 @@ python train.py --scenario hunt--max-episode-len 25
 ```
 Run an experiment on resource collection:
 ```shell
-python train.py --scenario simple_spread --max-episode-len 50" for resource collection tasks
+python train.py --scenario simple_spread --max-episode-len 50
 ```
